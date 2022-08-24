@@ -2,6 +2,28 @@ package Dynamic_Programming;
 import java.util.*;
 
 public class BestSum {
+    //Dynamic programming BestSum with hashmap
+    public static ArrayList<Integer> bestSumMemoHM(int target, int [] numbers, HashMap<Integer,ArrayList<Integer>>memory){
+       if(memory.containsKey(target)) return memory.get(target);
+       if(target == 0) return new ArrayList<>();
+       if(target<0) return null;
+
+       ArrayList<Integer> shortestCombination = null;
+        for (int i = 0; i <numbers.length ; i++) {
+            int reminder = target-numbers[i];
+            ArrayList<Integer> combination = bestSumMemoHM(reminder,numbers,memory);
+            if(combination!=null){
+                ArrayList<Integer> necessaryCombination = new ArrayList<>(combination);
+                necessaryCombination.add(numbers[i]);
+                if(shortestCombination == null || shortestCombination.size()>necessaryCombination.size()){
+                    shortestCombination = (ArrayList<Integer>) necessaryCombination.clone();
+                }
+            }
+
+        }
+        memory.put(target,shortestCombination);
+        return shortestCombination;
+    }
     //Dynamic programming BestSum
     public static ArrayList<Integer> bestSumMemo(int target, int [] numbers, ArrayList<Integer>memoInt,ArrayList<ArrayList<Integer>>memoList){
         // memoization part
@@ -19,10 +41,11 @@ public class BestSum {
             int reminder = target - numbers[i];
             ArrayList<Integer> currentCombination = bestSumMemo(reminder,numbers,memoInt,memoList);
             if(currentCombination!=null){
-                currentCombination.add(numbers[i]);
-                if(shortestCombination==null || shortestCombination.size()>currentCombination.size()){
-                    shortestCombination = new ArrayList<>();
-                    shortestCombination.addAll(currentCombination);
+                ArrayList<Integer>tempCombination = new ArrayList<>(currentCombination);
+                tempCombination.add(numbers[i]);
+
+                if(shortestCombination==null || shortestCombination.size()>tempCombination.size()){
+                    shortestCombination= (ArrayList<Integer>) tempCombination.clone();
                 }
             }
 
@@ -31,8 +54,6 @@ public class BestSum {
         memoList.add(shortestCombination);
         return shortestCombination;
     }
-
-
 
     // without Dynamic programming
     public static List<Integer> bestSum(int target, int [] numbers){
@@ -55,15 +76,16 @@ public class BestSum {
     public static void main(String[] args) {
         Scanner sc  = new Scanner(System.in);
         int target = sc.nextInt();
-        int [] numbers = {3,4,5,1,8,9,7};
+        int [] numbers = {1,2,5,25};
         // Dynamic
         ArrayList<Integer>lst = new ArrayList<>();
         ArrayList<ArrayList<Integer>>lstOflst = new ArrayList<>();
-        ArrayList<Integer> memOut = bestSumMemo(target,numbers,lst,lstOflst);
+        HashMap<Integer,ArrayList<Integer>> hm = new HashMap<>();
+        ArrayList<Integer> memOut = bestSumMemoHM(target,numbers,hm);
         System.out.println(memOut);
         // Non-dynamic
-        List<Integer> output = bestSum(target,numbers);
-        System.out.println(output);
+//        List<Integer> output = bestSum(target,numbers);
+//        System.out.println(output);
     }
 
 }
